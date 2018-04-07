@@ -11,6 +11,7 @@ var isReg = false;
 ids = []
 usernames = []
 var rooms = new Map();
+var ref = new Map();
 
 
 io.on('connection', (socket) => {
@@ -24,15 +25,16 @@ io.on('connection', (socket) => {
     });
 
     socket.on('roomconnect', (room) => {
+        ref.set(socket.id, room.roomname);
+
         if(rooms.get(room.roomname) == undefined){
             var arr = new Array();
-            arr.push(socket.id);
-            rooms.set(room.roomname, arr);
         }else{
             var arr = rooms.get(room.roomname);
-            arr.push(socket.id);
-            rooms.set(room.roomname, arr);
         }
+
+        arr.push(socket.id);
+        rooms.set(room.roomname, arr);
     });
 
     socket.on('sendMsg', (data) => {
@@ -43,6 +45,8 @@ io.on('connection', (socket) => {
             console.log(data.toUser);
             
             if(data.toUser == ''){
+                console.log(ref.get(socket.id));
+                
                 io.emit('recMsg', { message: data.message })
             }else{
                 console.log(data.toUser);
