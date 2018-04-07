@@ -16,8 +16,6 @@ var ref = new Map();
 
 io.on('connection', (socket) => {
 
-    //console.log(socket.id);
-
     socket.on('register', (user) => {
         ids.push(socket.id);
         usernames.push(user.username);
@@ -41,13 +39,14 @@ io.on('connection', (socket) => {
         
         if(isReg == true){
             console.log("message is : " + data.message);
-            // io.emit('recMsg', { message: data.message }) //socket is just for current user...
-            console.log(data.toUser);
             
             if(data.toUser == ''){
-                console.log(ref.get(socket.id));
                 
-                io.emit('recMsg', { message: data.message })
+                var members = rooms.get(ref.get(socket.id));
+                members.forEach(element => {
+                    io.to(element).emit('recMsg', { message: data.message })
+                });
+                
             }else{
                 console.log(data.toUser);
                 io.to(ids[usernames.indexOf(data.toUser)]).emit('recMsg', { message: data.message })
